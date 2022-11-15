@@ -59,8 +59,8 @@ void init_pwm(void)
   // **************************************************************
   
   DDRB |= (1<<PB1);  			//set OC1A and OC1B  as an output
-  OCR1A=0;    				//set initial compare at 50%
-  ICR1=31; 				// 8 MHz /ICR1/2 = PWM frequency = 100 Hz
+  OCR1A=0;    				//initialize register to 0% duty cycle
+  ICR1=31; 				// 8 MHz / (ICR1+1) / 2 = PWM frequency = 125 kHz
   TCCR1A = (1<<COM1A1); 		//zeros in COM1B1,COM1B0,WGM11,WGM10  
   TCCR1B = (1<<WGM13) | (1<<CS11); 	//internal clock, no prescaler , PWM mode 8
 
@@ -74,10 +74,10 @@ void pwm_adjust(void) {
 		
 		for(i = 0; i < twoPI; i+= 0x0142){
 		  //Precalculate value
-		  //PORTD |= (1<<PD4);			//Debug and measurement
+		  PORTD |= (1<<PD4);			//Debug and measurement
 		  y = 0x0800 + short_sin(i);		//Add 1 (fixed point) to make output between 0 and 2
 		  y = multiply(y, 0x7D00);   		//Multiply by 15.75, output will be between 0 and 31.5 (unsigned)
-		  //PORTD ^= (1<<PD4);			//Debug and measurement
+		  PORTD ^= (1<<PD4);			//Debug and measurement
 		  
 		  
 		  //Wait for interrupt to set flag high then set output
@@ -150,5 +150,3 @@ short short_sin(short x) {
 	return out;
 	
 	}
-
-	
