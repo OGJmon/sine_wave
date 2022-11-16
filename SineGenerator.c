@@ -43,7 +43,7 @@ void init_timer(void)
   // **************************************************************
   
   TCCR2A = 2; // set CTC mode for timer 2
-  OCR2A = 125; // Count up to 42
+  OCR2A = 49; // Count up to 50
   TIFR2 = 0; // clear pending interrupts
   TIMSK2 = 2; // Turning on interrupt
   TCCR2B = 3; // Prescaler set to 8
@@ -72,12 +72,12 @@ void pwm_adjust(void) {
 
 	while(1){
 		
-		for(i = 0; i < twoPI; i+= 0x0142){
+		for(i = 0; i < twoPI; i+= 0x0099){
 		  //Precalculate value
-		  PORTD |= (1<<PD4);			//Debug and measurement
+		  //PORTD |= (1<<PD4);			//Debug and measurement
 		  y = 0x0800 + short_sin(i);		//Add 1 (fixed point) to make output between 0 and 2
 		  y = multiply(y, 0x7D00);   		//Multiply by 15.75, output will be between 0 and 31.5 (unsigned)
-		  PORTD ^= (1<<PD4);			//Debug and measurement
+		  //PORTD ^= (1<<PD4);			//Debug and measurement
 		  
 		  
 		  //Wait for interrupt to set flag high then set output
