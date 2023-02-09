@@ -12,7 +12,7 @@
 #define shift_amount_mult 22
 #define shift_mask_mult ((1 << shift_amount_mult) - 1)
 
-short short_sin(short x);
+short fixed_sin(short x);
 short multiply(short a, short b);
 void init_pwm(void);
 void pwm_adjust(void);
@@ -43,7 +43,7 @@ void init_timer(void)
   // **************************************************************
   
   TCCR2A = 2; // set CTC mode for timer 2
-  OCR2A = 49; // Count up to 50
+  OCR2A = 255; // Count up to 50
   TIFR2 = 0; // clear pending interrupts
   TIMSK2 = 2; // Turning on interrupt
   TCCR2B = 3; // Prescaler set to 8
@@ -74,10 +74,10 @@ void pwm_adjust(void) {
 		
 		for(i = 0; i < twoPI; i+= 0x0099){
 		  //Precalculate value
-		  //PORTD |= (1<<PD4);			//Debug and measurement
-		  y = 0x0800 + short_sin(i);		//Add 1 (fixed point) to make output between 0 and 2
+		  PORTD |= (1<<PD4);			//Debug and measurement
+		  y = 0x0800 + fixed_sin(i);		//Add 1 (fixed point) to make output between 0 and 2
 		  y = multiply(y, 0x7D00);   		//Multiply by 15.75, output will be between 0 and 31.5 (unsigned)
-		  //PORTD ^= (1<<PD4);			//Debug and measurement
+		  PORTD ^= (1<<PD4);			//Debug and measurement
 		  
 		  
 		  //Wait for interrupt to set flag high then set output
@@ -97,56 +97,46 @@ short multiply(short a, short b) {
 	return multiply_result;
 }
 
+short divide_by_int(short a, int b) {
+	
+	short result = a / b;
+	return result;
+}
 
-short short_sin(short x) {
-	static uint16_t out;
-	static const uint16_t coef[] = {0, 0x0800, 0, 0xF800, 0, 0x0800};	//{0,1,0,-1,...} sin coefficients
-	static uint16_t xcoef[] = {0x0800, 0, 0, 0, 0, 0, 0, 0};		//used to create array of (x^n)/n!
-	static uint16_t ans[8];							//output array, good for checking results
-	out=0;
+short fixed_sin(short x) {
+	int i;								//iterator
+	short coef[] = {0, 0x0800, 0, 0xF800, 0, 0x0800, 0, 0xF800};	//{0,1,0,-1,...} sin coefficients
+	short xcoef[] = {0x0800, 0, 0, 0, 0, 0, 0, 0};			//used to create array of (x^n)/n!
+	short ans[8];							//output array, good for checking results
+	short a = 0, out = 0;
 	
 	/* --- x is outside of range -3*PI/2 to 3*PI/2 get it in range --- */
-
-	while (x >= (threePItwo)) x -= twoPI;
-
-	while (x <= (-threePItwo)) x += twoPI;
-
+	if (x >= (3*PI/2) || x <= (-3*PI/2)) {
+		if (x >= (3*PI/2)) {
+			while (x >= (3*PI/2)) x -= twoPI;
+		}
+		else if (x <= (-3*PI/2)) {
+			while (x <= (-3*PI/2)) x += twoPI;
+		}
+	}
 
 	/* --- Use symmetry if x is inside previous range but outside of -PI/2 to PI/2 ---*/
-	if ((x >= (PItwo)) && (x <= (threePItwo))) {
+	if ((x >= (PI/2)) && (x <= (3*PI/2))) {
 		x -= PI;
 		x *= -1;
 	}	
-	if ((x <= (-PItwo)) && (x >= (-threePItwo))) {
+	if ((x <= (-PI/2)) && (x >= (-3*PI/2))) {
 		x += PI;
 		x *= -1;
 	}
 	
-	
-	/* --- Use fifth order Taylor series to approximate value between -PI/2 to PI/2 --- */
-
-	// Calculate first term of Taylor series
-	xcoef[1] = multiply(xcoef[0], x);	//xcoef(i-1)*(x/i)
-	ans[1] = multiply(xcoef[1], coef[1]);	//multiply by sine coefficients
-	out += ans[1];				//sum first term
-	
-	// Even terms work out to zero but still need to keep track of factorial
-	xcoef[2] = multiply(xcoef[1], (x / 2));	
-	
-	// Calculate third term of Taylor series
-	xcoef[3] = multiply(xcoef[2], (x / 3));
-	ans[3] = multiply(xcoef[3], coef[3]);	
-	out += ans[3];
-	
-	// Even terms work out to zero but still need to keep track of factorial
-	xcoef[4] = multiply(xcoef[3], (x / 4));
-	
-	// Calculate fifth term of Taylor series
-	xcoef[5] = multiply(xcoef[4], (x / 5));	
-	ans[5] = multiply(xcoef[5], coef[5]);			
-	out += ans[5];
-	
-	
+	/* --- Use Taylor series to approximate value between -PI/2 to PI/2 --- */
+	for (i = 1; i < 8; i++) {
+		xcoef[i] = multiply(xcoef[i-1], divide_by_int(x, i));	//xcoef(i-1)*(x/i)
+		ans[i] = multiply(xcoef[i], coef[i]);			//multiply by sine coefs
+		out += ans[i];						//sum the ans array for approximation
+		}
 	return out;
-	
 	}
+	
+	

@@ -1,6 +1,6 @@
 TARGET=sinegen
-OBJS=SineGenerator.o
-CFLAGS=-mmcu=atmega88 -O2
+OBJS=fixedsine.o
+CFLAGS=-mmcu=atmega88 -O2 
 CC=avr-gcc
 OBJCOPY=avr-objcopy
 OBFLAGS=-j .text -j .data -O ihex
