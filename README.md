@@ -1,5 +1,5 @@
 # Sine Wave Generation
-A school project to compare the performance of various ways to approximate a sine wave on a microcontroller. The microcontroller used was an atmega88pa-pu. Code used to synthesize a sine wave using a PWM output and a low pass filter. 
+A school project to compare the performance of various ways to approximate a 60Hz sine wave on an 8-bit microcontroller. The microcontroller used was an atmega88pa-pu. Code used to synthesize a sine wave using a PWM output and a low pass filter. 
 
 # Instructions
 1. First of all set up the RPi and AVR using the following tutotial: https://learn.adafruit.com/program-an-avr-or-arduino-using-raspberry-pi-gpio-pins/configuration
