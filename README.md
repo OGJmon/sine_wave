@@ -1,8 +1,9 @@
-# AVRSineGen
-Code used to synthesize a sine wave using a PWM output and a low pass filter. 
+# Sine Wave Generation
+A school project to compare the performance of various ways to approximate a sine wave on a microcontroller. The microcontroller used was an atmega88pa-pu. Code used to synthesize a sine wave using a PWM output and a low pass filter. 
 
-First of all set up the RPi and AVR using the following tutotial: https://learn.adafruit.com/program-an-avr-or-arduino-using-raspberry-pi-gpio-pins/configuration
+# Instructions
+1. First of all set up the RPi and AVR using the following tutotial: https://learn.adafruit.com/program-an-avr-or-arduino-using-raspberry-pi-gpio-pins/configuration
 
-Next a low pass filter using a 1uF capacitor and a 1k Ohm resister should be placed on pin 15 (PB1).
+2. Next, set up a low pass filter using a 1uF capacitor and a 1k Ohm resister on a PWM output of the microcontroller. The code uses pin 15(PB1) of the atmega88pa-pu.
 
-Now, download the code and compile and run program.c. There is now a sine wave on pin 15!
+3. Now, there are four C programs that can create a sine wave using the AVR PWM output: hwsine.c is an unoptimized fixed point sine approximation, fixed.c is an optimized fixed point sine approximation, floatsine.c is an optimized floating point sine approximation, and lastly mathsine.c uses the math.h sine function. 
