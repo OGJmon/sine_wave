@@ -10,4 +10,5 @@ A school project to compare the performance of various ways to approximate a sin
 
 # Example results
 The blue sine wave was created usinga function generator, and the yellow sine wave was created using the code from this repository along with the PWM output of the atmega88pa-pu microcontroller.
+
 ![image](https://user-images.githubusercontent.com/80599443/217859151-da01be7d-df28-48d3-a88a-29ff3fcd1f79.png)
